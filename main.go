@@ -1,4 +1,4 @@
-// Copyright © 2016 NAME HERE <EMAIL ADDRESS>
+// Copyright © 2015-2016 River Yang <comicme_yanghe@nanoframework.org>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import (
 	//"log"
 	//"github.com/riveryang/spider/codec"
 	//"fmt"
-	"strings"
 )
+
 func main() {
 	cmd.Execute()
 	//baseLink := "http://share.dmhy.org"
@@ -42,6 +42,6 @@ func main() {
 	//}
 }
 
-func execText(text string) string {
-	return strings.Replace(strings.Replace(strings.Trim(text, " "), "\t", "", -1), "\n", "", -1)
-}
+//func execText(text string) string {
+//	return strings.Replace(strings.Replace(strings.Trim(text, " "), "\t", "", -1), "\n", "", -1)
+//}

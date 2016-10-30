@@ -1,3 +1,17 @@
+// Copyright © 2015-2016 River Yang <comicme_yanghe@nanoframework.org>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package codec
 
 import (
@@ -21,60 +35,60 @@ func (c *DmhyTopicCodec) Decode(doc *goquery.Document, baseLink string) ([]inter
 		items := doc.Find("table#topic_list tbody tr")
 		topics := make([]interface{}, items.Length())
 		items.Each(func(i int, s *goquery.Selection) {
-			topic := topic.Topic{}
+			t := topic.Topic{}
 			s.Find("td").Each(func(idx int, item *goquery.Selection) {
 				switch idx {
 				case 0:
-					topic.Time, err = time.Parse("2006/01/02 15:04", execText(item.Find("span").Text()))
+					t.Time, err = time.Parse("2006/01/02 15:04", execText(item.Find("span").Text()))
 					if err != nil {
 						log.Fatal(err)
 					}
 				case 1:
-					topic.Type = execText(item.Find("a font").Text())
+					t.Type = execText(item.Find("a font").Text())
 				case 2:
 					tag := item.Find("span.tag")
 					if tag.Length() > 0 {
-						topic.Tag = execText(tag.Find("a").Text())
+						t.Tag = execText(tag.Find("a").Text())
 					}
 
 					title := item.Find("a[target='_blank']")
 					if title.Length() > 0 {
 						href, exists := title.Attr("href")
 						if exists {
-							topic.Link = baseLink + execText(href)
+							t.Link = baseLink + execText(href)
 						}
 
-						topic.Title = execText(title.Text())
+						t.Title = execText(title.Text())
 					}
 				case 3:
 					magnet := item.Find("a")
 					href, exists := magnet.Attr("href")
 					if exists {
-						topic.Magnet = execText(href)
+						t.Magnet = execText(href)
 					}
 				case 4:
-					topic.Size = execText(item.Text())
+					t.Size = execText(item.Text())
 				case 5:
-					topic.Seed, err = strconv.Atoi(execText(item.Find("span").Text()))
+					t.Seed, err = strconv.Atoi(execText(item.Find("span").Text()))
 					if err != nil {
-						topic.Seed = 0
+						t.Seed = 0
 					}
 				case 6:
-					topic.Downloads, err = strconv.Atoi(execText(item.Find("span").Text()))
+					t.Downloads, err = strconv.Atoi(execText(item.Find("span").Text()))
 					if err != nil {
-						topic.Downloads = 0
+						t.Downloads = 0
 					}
 				case 7:
-					topic.Complete, err = strconv.Atoi(execText(item.Text()))
+					t.Complete, err = strconv.Atoi(execText(item.Text()))
 					if err != nil {
-						topic.Complete = 0
+						t.Complete = 0
 					}
 				default:
 					break
 				}
 			});
 
-			topics[i] = topic
+			topics[i] = t
 		})
 
 		return topics, nil
