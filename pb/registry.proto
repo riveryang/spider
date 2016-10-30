@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package pb;
+
+service Registry {
+    rpc register(RegisterRequest) returns (RegisterResponse) {}
+}
+
+message RegisterRequest {
+    string address = 1;
+}
+
+message RegisterResponse {
+    string message = 1;
+}
