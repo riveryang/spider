@@ -16,32 +16,39 @@ package codec
 
 import (
 	"github.com/PuerkitoBio/goquery"
-	"github.com/riveryang/spider/topic"
-	"log"
 	"strings"
 	"github.com/pkg/errors"
 	"strconv"
 	"time"
+	"github.com/riveryang/spider/models"
+	"crypto/md5"
+	"encoding/hex"
+	"github.com/astaxie/beego"
+)
+
+var (
+	ErrNotFoundPage = errors.New("Not found page")
 )
 
 type DmhyTopicCodec struct {
 
 }
 
-func (c *DmhyTopicCodec) Decode(doc *goquery.Document, baseLink string) ([]interface{}, error) {
+func (c *DmhyTopicCodec) Handler(doc *goquery.Document, source string) ([]interface{}, error) {
 	var err error
 	table := doc.Find("table#topic_list tbody tr")
 	if table.Length() > 0 {
 		items := doc.Find("table#topic_list tbody tr")
 		topics := make([]interface{}, items.Length())
 		items.Each(func(i int, s *goquery.Selection) {
-			t := topic.Topic{}
+			t := new(models.DmhyTopic)
 			s.Find("td").Each(func(idx int, item *goquery.Selection) {
 				switch idx {
 				case 0:
 					t.Time, err = time.Parse("2006/01/02 15:04", execText(item.Find("span").Text()))
 					if err != nil {
-						log.Fatal(err)
+						beego.Error(err)
+						return
 					}
 				case 1:
 					t.Type = execText(item.Find("a font").Text())
@@ -55,7 +62,7 @@ func (c *DmhyTopicCodec) Decode(doc *goquery.Document, baseLink string) ([]inter
 					if title.Length() > 0 {
 						href, exists := title.Attr("href")
 						if exists {
-							t.Link = baseLink + execText(href)
+							t.Link = source + execText(href)
 						}
 
 						t.Title = execText(title.Text())
@@ -88,12 +95,15 @@ func (c *DmhyTopicCodec) Decode(doc *goquery.Document, baseLink string) ([]inter
 				}
 			});
 
+			h := md5.New()
+			h.Write([]byte(t.Time.String() + t.Type + t.Tag + t.Link + t.Title + t.Magnet + t.Size))
+			t.Md5 = hex.EncodeToString(h.Sum(nil))
 			topics[i] = t
 		})
 
 		return topics, nil
 	} else {
-		return nil, errors.New("Not found page")
+		return nil, ErrNotFoundPage
 	}
 }
 

@@ -3,3 +3,4 @@
 spider*
 vendor/
 bin/
+*.tmp

@@ -14,8 +14,24 @@
 
 package codec
 
-import "github.com/PuerkitoBio/goquery"
+import (
+	"github.com/PuerkitoBio/goquery"
+	"github.com/pkg/errors"
+)
 
-type Decoder interface {
-	Decode(doc *goquery.Document, baseLink string) ([]interface{}, error)
+var (
+	ErrNotFoundCodec = errors.New("Not found codec")
+)
+
+type Codec interface {
+	Handler(doc *goquery.Document, source string) ([]interface{}, error)
+}
+
+func WithCodec(codec string) (Codec, error) {
+	switch codec {
+	case "dmhy":
+		return &DmhyTopicCodec{}, nil
+	default:
+		return nil, ErrNotFoundCodec
+	}
 }
