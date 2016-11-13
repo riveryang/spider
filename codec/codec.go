@@ -17,6 +17,7 @@ package codec
 import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/pkg/errors"
+	"github.com/riveryang/spider/models"
 )
 
 var (
@@ -25,12 +26,15 @@ var (
 
 type Codec interface {
 	Handler(doc *goquery.Document, source string) ([]interface{}, error)
+	Save(topics []interface{}) (int64, error)
 }
 
 func WithCodec(codec string) (Codec, error) {
 	switch codec {
-	case "dmhy":
+	case models.DMHY_CODEC:
 		return &DmhyTopicCodec{}, nil
+	case models.BANGUMI_CODEC:
+		return &BangumiCodec{}, nil
 	default:
 		return nil, ErrNotFoundCodec
 	}

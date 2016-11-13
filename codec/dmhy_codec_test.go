@@ -3,11 +3,12 @@ package codec
 import (
 	"testing"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/riveryang/spider/models"
 )
 
 var source = "http://share.dmhy.org"
 var topic = "topics/list/page"
-var codec = "dmhy"
+var codec = models.DMHY_CODEC
 
 func TestDmhyTopicCodec_Handler(t *testing.T) {
 	doc, err := goquery.NewDocument(source + "/" + topic + "/1")

@@ -1,6 +1,9 @@
 package codec
 
-import "testing"
+import (
+	"testing"
+	"github.com/Unknwon/com"
+)
 
 func TestWithCodec_NotFoundCodec(t *testing.T) {
 	_, err := WithCodec("nil")
@@ -11,4 +14,8 @@ func TestWithCodec_NotFoundCodec(t *testing.T) {
 	if err != ErrNotFoundCodec {
 		t.Fatal(err)
 	}
+}
+
+func TestURLEncode(t *testing.T) {
+	t.Log(com.UrlEncode("anime/browser?sort=date&page="))
 }

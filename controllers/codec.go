@@ -7,7 +7,6 @@ import (
 	"github.com/riveryang/spider/result"
 	"github.com/riveryang/spider/http"
 	"strconv"
-	"github.com/astaxie/beego/orm"
 	"time"
 	"math/rand"
 )
@@ -81,7 +80,7 @@ func (c *CodecController) Auto() {
 					}
 
 					dur := time.Second + time.Millisecond * time.Duration(rand.Int31n(2000))
-					beego.Info("Now reader page of href [", source + "/" + topic + "/" + strconv.Itoa(nowPage), "]. next reader of", dur)
+					beego.Info("Now reader page of href [", source + "/" + topic + strconv.Itoa(nowPage), "]. next reader of", dur)
 					nowPage++
 					time.Sleep(dur)
 				}
@@ -114,7 +113,7 @@ func exec(source, topic, codecType string, page int) *result.Result {
 	if err != nil {
 		return &result.Result{Status: http.BAD_REQUEST, Message: err.Error()}
 	} else {
-		doc, err := goquery.NewDocument(source + "/" + topic + "/" + strconv.Itoa(page))
+		doc, err := goquery.NewDocument(source + "/" + topic + strconv.Itoa(page))
 		if err != nil {
 			return &result.Result{Status: http.BAD_REQUEST, Message: err.Error()}
 		}
@@ -124,17 +123,9 @@ func exec(source, topic, codecType string, page int) *result.Result {
 			return &result.Result{Status: http.BAD_REQUEST, Message: err.Error()}
 		}
 
-		o := orm.NewOrm()
-		size := 0
-		for _, item := range topics {
-			ret, err := o.InsertOrUpdate(item)
-			if err != nil {
-				return &result.Result{Status: http.BAD_REQUEST, Message: err.Error()}
-			} else if ret < 1 {
-				continue;
-			} else {
-				size++;
-			}
+		size, err := c.Save(topics)
+		if err != nil {
+			return &result.Result{Status: http.BAD_REQUEST, Message: err.Error()}
 		}
 
 		beego.Info("Insert size: ", size)

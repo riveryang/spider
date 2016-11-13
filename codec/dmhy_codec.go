@@ -24,6 +24,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/orm"
 )
 
 var (
@@ -36,11 +37,10 @@ type DmhyTopicCodec struct {
 
 func (c *DmhyTopicCodec) Handler(doc *goquery.Document, source string) ([]interface{}, error) {
 	var err error
-	table := doc.Find("table#topic_list tbody tr")
-	if table.Length() > 0 {
-		items := doc.Find("table#topic_list tbody tr")
-		topics := make([]interface{}, items.Length())
-		items.Each(func(i int, s *goquery.Selection) {
+	trs := doc.Find("table#topic_list tbody tr")
+	if trs.Length() > 0 {
+		topics := make([]interface{}, trs.Length())
+		trs.Each(func(i int, s *goquery.Selection) {
 			t := new(models.DmhyTopic)
 			s.Find("td").Each(func(idx int, item *goquery.Selection) {
 				switch idx {
@@ -109,4 +109,32 @@ func (c *DmhyTopicCodec) Handler(doc *goquery.Document, source string) ([]interf
 
 func execText(text string) string {
 	return strings.Replace(strings.Replace(strings.Trim(text, " "), "\t", "", -1), "\n", "", -1)
+}
+
+func (c *DmhyTopicCodec) Save(topics []interface{}) (int64, error) {
+	o := orm.NewOrm()
+	var size int64
+	for _, item := range topics {
+		topic := item.(*models.DmhyTopic)
+		q := new(models.DmhyTopic)
+		q.Md5 = topic.Md5
+		err := o.Read(q, "Md5")
+		if err != nil && err == orm.ErrNoRows {
+			count, err := o.Insert(topic)
+			if err != nil {
+				return 0, err
+			}
+
+			if count > 0 {
+				size += 1
+			}
+		} else if err != nil {
+			return 0, err
+		} else {
+			beego.Debug("Existing Rows of Md5 [", topic.Md5, "]")
+			continue;
+		}
+	}
+
+	return size, nil
 }
