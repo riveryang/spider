@@ -6,13 +6,18 @@ import (
 	"github.com/docker/go/canonical/json"
 	"github.com/astaxie/beego"
 	"github.com/riveryang/spider/models"
+	"sync"
+	"github.com/riveryang/spider/db"
 )
 
 var bangumiSource = "http://bangumi.tv"
-var bangumiTopic = "anime/browser?sort=date&page="
+var bangumiTopic = "subject/"
+
+var once sync.Once
 
 func TestBangumiCodec_Handler(t *testing.T) {
 	//beego.SetLevel(beego.LevelInformational)
+	once.Do(db.InitDB)
 
 	url := bangumiSource + "/" + bangumiTopic + "1"
 	beego.Debug("URL:", url)
